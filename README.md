@@ -1,33 +1,34 @@
-# 💖 3D/2.5D Valentine's Day Experience
+# 💖 True 3D Valentine's Day Experience
 
-A premium, interactive web experience built with **React**, **Vite**, **Framer Motion**, and **TailwindCSS**. This project features high-fidelity 2D and 2.5D animations designed to impress.
+A premium, interactive web experience built with **React**, **Three.js**, **React Three Fiber**, and **TailwindCSS**. This project features high-fidelity 3D animations and interactive physics.
 
-## Features
+## 🌟 Features
 
-### 1. Floating Hearts (Parallax)
--   **Visuals**: Floating hearts with varying depths, blur effects, and speeds to create a 2.5D parallax effect.
--   **Tech**: Framer Motion `AnimatePresence` + CSS Filters.
+### 1. 🎈 3D Floating Hearts
+-   **Visuals**: Volumetric 3D hearts floating in a void with cinematic lighting.
+-   **Tech**: custom `extrudeGeometry` shapes in a R3F Canvas.
 
-### 2. Heart Galaxy (3D CSS)
--   **Visuals**: A volumetric, rotating solar system of hearts and planets.
--   **Tech**: advanced CSS 3D transforms (`preserve-3d`, `perspective`) and mouse-driven parallax tilt.
+### 2. 🌌 3D Heart Galaxy
+-   **Visuals**: A massive particle system (10k+ points) forming a glowing heart nebulae.
+-   **Tech**: R3F `Points` with `AdditiveBlending` for high-performance glows.
 
-### 3. Love Explosion (Physics)
--   **Visuals**: High-performance particle physics simulation. Click to trigger a burst of gravity-affected particles.
--   **Tech**: HTML5 Canvas API for rendering hundreds of particles at 60fps.
+### 3. 💥 3D Love Explosion
+-   **Visuals**: Interactive physics burst! Click to spray 3D hearts across the screen.
+-   **Tech**: Dynamic state-driven particle generation in 3D space.
 
-### 4. Particle Field (Interactive)
--   **Visuals**: A responsive grid of particles that reacts to mouse movement with repulsion and attraction forces.
--   **Tech**: HTML5 Canvas API with custom physics logic.
+### 4. 🌊 3D Particle Field
+-   **Visuals**: An interactive 3D grid of voxels that ripple as you move your mouse.
+-   **Tech**: `instancedMesh` for rendering thousands of interactive 3D objects at once.
 
-## Tech Stack
+## 🛠️ Tech Stack
 
+-   **3D Engine**: Three.js
+-   **React Bridge**: React Three Fiber (R3F)
+-   **Helpers**: React Three Drei
 -   **Frontend**: React 19 + Vite 6
 -   **Styling**: TailwindCSS v4
--   **Animation**: Framer Motion 12
--   **Graphics**: Native HTML5 Canvas
 
-## Getting Started
+## 🚀 Getting Started
 
 1.  **Install Dependencies**:
     ```bash
@@ -42,12 +43,6 @@ A premium, interactive web experience built with **React**, **Vite**, **Framer M
 3.  **Open in Browser**:
     Navigate to `http://localhost:5173`.
 
-## Customization
-
--   **Text**: Edit the text overlays in `src/tabs/*.jsx` files.
--   **Colors**: Tailwind classes are used throughout. Modify `bg-pink-950`, `text-red-500`, etc.
--   **Physics**: Adjust particle counts and speeds in `LoveExplosion.jsx` and `ParticleField.jsx`.
-
 ---
 
-*Made with love ❤️*
+*Made with love (and math) ❤️*

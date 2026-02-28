@@ -1,95 +1,88 @@
+import { useRef, useState, useMemo } from "react";
+import { useFrame } from "@react-three/fiber";
+import * as THREE from "three";
+import { Instance, Instances, Float } from "@react-three/drei";
+import SceneContainer from "../components/SceneContainer";
 
-import { useEffect, useRef } from "react";
+const BurstParticles = ({ count = 100, origin = [0, 0, 0] }) => {
+    const particles = useMemo(() => {
+        return Array.from({ length: count }).map(() => ({
+            velocity: new THREE.Vector3(
+                (Math.random() - 0.5) * 2,
+                (Math.random() - 0.5) * 2,
+                (Math.random() - 0.5) * 2
+            ).normalize().multiplyScalar(Math.random() * 0.5 + 0.2),
+            rotationSpeed: new THREE.Vector3(Math.random(), Math.random(), Math.random()).multiplyScalar(0.1),
+            scale: Math.random() * 0.2 + 0.1
+        }));
+    }, [count]);
 
-export default function LoveExplosion() {
-    const canvasRef = useRef(null);
+    const instancesRef = useRef();
 
-    useEffect(() => {
-        const canvas = canvasRef.current;
-        const ctx = canvas.getContext("2d");
-        let animationFrameId;
-        let particles = [];
-        const colors = ["#ef4444", "#ec4899", "#f472b6", "#fda4af", "#ffffff"];
-
-        const resize = () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        };
-        window.addEventListener("resize", resize);
-        resize();
-
-        class Particle {
-            constructor(x, y) {
-                this.x = x;
-                this.y = y;
-                this.angle = Math.random() * Math.PI * 2;
-                this.velocity = Math.random() * 10 + 2;
-                this.size = Math.random() * 5 + 2;
-                this.life = 100;
-                this.decay = Math.random() * 1 + 0.5;
-                this.color = colors[Math.floor(Math.random() * colors.length)];
-                this.gravity = 0.2;
-            }
-
-            update() {
-                this.x += Math.cos(this.angle) * this.velocity;
-                this.y += Math.sin(this.angle) * this.velocity + this.gravity; // Gravity adds to Y
-                this.velocity *= 0.95; // Friction
-                this.life -= this.decay;
-                this.size *= 0.98; // Shrink
-            }
-
-            draw() {
-                ctx.fillStyle = this.color;
-                ctx.globalAlpha = this.life / 100;
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.globalAlpha = 1;
-            }
+    useFrame((state, delta) => {
+        if (instancesRef.current) {
+            // This is a bit complex for a simple Instance component without a single loop
+            // But within R3F Instance, we usually animate via props or refs if using manually.
+            // Simplified: we'll animate the group instead or use a simpler individual component approach.
         }
-
-        const animate = () => {
-            // Trail effect
-            ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            particles.forEach((p, index) => {
-                p.update();
-                p.draw();
-                if (p.life <= 0 || p.size <= 0.1) {
-                    particles.splice(index, 1);
-                }
-            });
-
-            animationFrameId = requestAnimationFrame(animate);
-        };
-        animate();
-
-        const handleClick = (e) => {
-            const rect = canvas.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-
-            // Explosion burst
-            for (let i = 0; i < 50; i++) {
-                particles.push(new Particle(x, y));
-            }
-        };
-
-        canvas.addEventListener("click", handleClick);
-
-        return () => {
-            window.removeEventListener("resize", resize);
-            canvas.removeEventListener("click", handleClick);
-            cancelAnimationFrame(animationFrameId);
-        };
-    }, []);
+    });
 
     return (
-        <div className="w-full h-full relative bg-gray-900 overflow-hidden cursor-crosshair">
-            <canvas ref={canvasRef} className="absolute inset-0 z-10" />
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
+        <group>
+            {particles.map((p, i) => (
+                <IndividualHeart key={i} {...p} origin={origin} />
+            ))}
+        </group>
+    );
+};
+
+const IndividualHeart = ({ velocity, rotationSpeed, scale, origin }) => {
+    const meshRef = useRef();
+    const [pos] = useState(() => new THREE.Vector3(...origin));
+    const [rot] = useState(() => new THREE.Euler(Math.random() * Math.PI, Math.random() * Math.PI, 0));
+
+    useFrame((state, delta) => {
+        if (meshRef.current) {
+            pos.add(velocity);
+            meshRef.current.position.copy(pos);
+            meshRef.current.rotation.x += rotationSpeed.x;
+            meshRef.current.rotation.y += rotationSpeed.y;
+
+            // Recycle
+            if (pos.length() > 20) {
+                pos.set(...origin);
+            }
+        }
+    });
+
+    return (
+        <Float speed={5} rotationIntensity={2} floatIntensity={2}>
+            <mesh ref={meshRef} scale={scale}>
+                <dodecahedronGeometry args={[1, 0]} />
+                <meshStandardMaterial color="#ef4444" emissive="#ef4444" emissiveIntensity={0.5} />
+            </mesh>
+        </Float>
+    );
+};
+
+export default function LoveExplosion() {
+    const [bursts, setBursts] = useState([]);
+
+    const handlePointerDown = (e) => {
+        // Add a new burst at origin for now, or world space if we calculate
+        setBursts(prev => [...prev.slice(-4), Date.now()]);
+    };
+
+    return (
+        <div className="w-full h-full bg-black relative cursor-pointer" onPointerDown={handlePointerDown}>
+            <SceneContainer cameraPos={[0, 0, 15]}>
+                {bursts.map(id => (
+                    <BurstParticles key={id} count={30} />
+                ))}
+                <BurstParticles count={50} /> {/* Steady burst */}
+            </SceneContainer>
+
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
                 <div className="text-center pointer-events-none select-none">
                     <h1 className="text-5xl md:text-7xl font-bold text-red-500 mb-4 drop-shadow-[0_0_15px_rgba(239,68,68,0.5)] tracking-tight">
                         MY HEART BURSTS
