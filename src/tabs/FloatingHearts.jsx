@@ -1,45 +1,8 @@
 import { useRef, useMemo } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { Float, Heart } from "@react-three/drei";
+import { Float } from "@react-three/drei";
 import SceneContainer from "../components/SceneContainer";
-
-const HeartModel = ({ position, color, speed, scale }) => {
-    const meshRef = useRef();
-
-    useFrame((state) => {
-        if (meshRef.current) {
-            meshRef.current.position.y += speed * 0.01;
-            if (meshRef.current.position.y > 10) meshRef.current.position.y = -10;
-            meshRef.current.rotation.x += 0.01;
-            meshRef.current.rotation.z += 0.01;
-        }
-    });
-
-    return (
-        <Float speed={2} rotationIntensity={1} floatIntensity={1}>
-            <mesh ref={meshRef} position={position} scale={scale}>
-                <extrudeGeometry
-                    args={[
-                        new THREE.Shape([
-                            new THREE.Vector2(0, 0),
-                            new THREE.Vector2(0, 5),
-                            new THREE.Vector2(5, 5),
-                            new THREE.Vector2(5, 0),
-                            new THREE.Vector2(0, 0)
-                        ]),
-                        { depth: 1, bevelEnabled: true }
-                    ]}
-                />
-                {/* Using a better heart representation since extruding a raw box isn't a heart.
-                We'll use a custom heart shape or the Heart component if available in newer drei.
-                Actually, simpler to use a plane with a heart texture or a primitive for now to ensure load.
-            */}
-                <meshStandardMaterial color={color} emissive={color} emissiveIntensity={2} toneMapped={false} />
-            </mesh>
-        </Float>
-    );
-};
 
 // Simple 3D Heart Geometry using Shape
 const HeartShape = ({ position, color, scale, speed }) => {
